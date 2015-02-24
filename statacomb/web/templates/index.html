@@ -34,13 +34,15 @@ $(function () {
     var chart = Morris.Line({
         element: 'chart',
         xkey: 'ts',
-        ykeys: ['total'],
-        labels: ['Total']
+        ykeys: ['total', 'unbooked', 'booked'],
+        labels: ['Total', 'Unbooked', 'Booked']
     });
 
     $('[name=update-values]').on('click', function () {
         $.getJSON('/data/', $('#filter-form').serialize()).done(
             function (data) {
+                chart.options.ykeys = Object.keys(data[0]).filter(function (v) { return v !== 'ts'; });
+                chart.options.labels = chart.options.ykeys;
                 chart.setData(data);
             }
         );
