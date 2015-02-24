@@ -133,7 +133,7 @@ def connect(request):
     Connect to the DB
     '''
     request.conn = utils.get_db_connection(
-        request.opts['config'],
+        request.app.config,
         cursor_factory=DictCursor
     )
 
@@ -144,6 +144,6 @@ def connect(request):
 
 
 parser = utils.make_parser()
-opts = parser.parse_args()
+opts = parser.parse_args(['--dbname', 'stats'])
 
 application = antfarm.App(root_view=connect, config=opts)
