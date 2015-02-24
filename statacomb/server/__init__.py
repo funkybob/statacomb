@@ -4,6 +4,8 @@ from socketserver import BaseRequestHandler, UDPServer
 
 from psycopg2.extras import Json
 
+from statacomb import utils
+
 '''
 CREATE TABLE records (
     id SERIAL,
@@ -12,6 +14,7 @@ CREATE TABLE records (
     src_ip INET,
     values JSON
 );
+
 CREATE INDEX records_5mins ON records (
     CAST( (EXTRACT(EPOCH FROM ts) / 300) AS INT)
 );
@@ -35,7 +38,7 @@ class SinkHandler(BaseRequestHandler):
         src_ip = self.client_address[0]
         values = data['values']
 
-        cursor = conn.cursor()
+        cursor = self.server.conn.cursor()
         cursor.execute('''
             INSERT INTO records (ts, source, src_ip, values)
             VALUES ('now', %s, %s, %s)
@@ -44,16 +47,10 @@ class SinkHandler(BaseRequestHandler):
         cursor.close()
 
 
-if __name__ == '__main__':
+class SinkServer(UDPServer):
+    def __init__(self, config):
 
-    from statacomb import utils
+        self.conn = utils.get_db_connection(config)
+        self.conn.set_session(autocommit=True)
 
-    parser = utils.make_parser()
-
-    opts = parser.parse_args()
-
-    conn = utils.get_db_connection(opts)
-    conn.set_session(autocommit=True)
-
-    server = UDPServer((opts.host, opts.port), SinkHandler)
-    server.serve_forever()
+        super().__init__((config.host, config.port), SinkHandler)
