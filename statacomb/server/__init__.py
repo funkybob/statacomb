@@ -16,10 +16,10 @@ CREATE TABLE records (
 );
 
 CREATE INDEX records_5mins ON records (
-    CAST( (EXTRACT(EPOCH FROM ts) / 300) AS INT)
+    CAST(EXTRACT(EPOCH FROM ts) AS INT) / 300
 );
 CREATE INDEX records_30mins ON records (
-    CAST( (EXTRACT(EPOCH FROM ts) / 1800) AS INT)
+    CAST(EXTRACT(EPOCH FROM ts) AS INT) / 1800
 );
 
 '''
