@@ -72,6 +72,8 @@ def data(request):
     scale = request.query_data.get('scale', [None])[0]
     if scale is None:
         scale = 300
+    else:
+        scale = int(scale)
 
     duration = request.query_data.get('duration', [None])[0]
     if duration is None:
