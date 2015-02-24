@@ -98,12 +98,13 @@ def data(request):
         query = '''
             SELECT i.tsa * %%s AS ts, %s
             FROM (
-                SELECT CAST((EXTRACT(EPOCH FROM ts) / %%s) AS INT) AS tsa, %s
+                SELECT CAST(EXTRACT(EPOCH FROM ts) AS INT) / %%s AS tsa, %s
                 FROM records
                 -- WHERE ts > %%s
                 -- AND ts < %%s
             ) AS i
             GROUP BY i.tsa
+            ORDER BY i.tsa ASC
         ''' % (
             ','.join([
                 'SUM(%s) AS %s' % (field, field)
