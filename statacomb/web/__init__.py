@@ -1,5 +1,6 @@
 
 from datetime import datetime, timedelta
+from decimal import Decimal
 import json
 import os
 import re
@@ -23,9 +24,18 @@ urls = url_dispatcher(
 )
 
 
+class JsonEncoder(json.JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        return super(JsonEncoder, self).default(o)
+
+encoder = JsonEncoder()
+
 def as_json(data, **kwargs):
     return antfarm.Response(
-        json.dumps(data),
+        encoder.encode(data),
         content_type='application/json',
         **kwargs
     )
@@ -93,6 +103,10 @@ def data(request):
         if FIELD_RE.match(field)
     ]
 
+    mode = request.query_data.get('mode', ['sum'])[0]
+    if mode not in ['sum', 'avg']:
+        mode = 'sum'
+
     cursor = request.conn.cursor()
     safe_fields = [QuotedString(field) for field in fields]
     try:
@@ -109,7 +123,7 @@ def data(request):
             ORDER BY i.tsa ASC
         ''' % (
             ','.join([
-                'SUM(%s) AS %s' % (field, field)
+                '%s(%s) AS %s' % (mode.upper(), field, field)
                 for field in fields
             ]),
             ','.join([
