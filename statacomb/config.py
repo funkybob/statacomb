@@ -7,7 +7,7 @@ import sys
 def make_parser():
     parser = ArgumentParser()
     parser.add_argument('--host', action='store', dest='host',
-                        default='localhost', help='Interface to bind to')
+                        default='127.0.0.1', help='Interface to bind to')
     parser.add_argument('--port', action='store', dest='port',
                         default=9876, type=int, help='Port to bind to')
 
