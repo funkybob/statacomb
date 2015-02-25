@@ -18,6 +18,8 @@ BASE_DIR = os.path.dirname(__file__)
 rel = lambda x: os.path.join(BASE_DIR, x)
 
 FIELD_RE = re.compile(r'^\w+$')
+STRPTIME_ISO = '%Y-%m-%d %H:%M'
+
 
 urls = url_dispatcher(
     (r'^/static/(?P<path>.*)', ServeStatic(rel('static/'))),
@@ -84,16 +86,22 @@ def data(request):
         scale = 1
     scale = int(scale)
 
-    duration = request.query_data.get('duration', [None])[0]
-    if duration is None:
-        duration = 2
-    duration = timedelta(days=int(duration))
-
     start_time = request.query_data.get('start_time', [None])[0]
-    if start_time is None:
-        start_time = datetime.now() - duration
-    else:
-        start_time = datetime.fromtimestamp(int(start_time))
+    if start_time:
+        start_time = datetime.strptime(start_time, STRPTIME_ISO)
+
+    end_time = request.query_data.get('end_time', [None])[0]
+    if end_time:
+        end_time = datetime.strptime(end_time, STRPTIME_ISO)
+
+    if not end_time:
+        if not start_time:
+            end_time = datetime.now()
+        else:
+            end_time = start_time + (40 * timedelta(seconds=scale))
+
+    if not start_time:
+        start_time = end_time - (40 * timedelta(seconds=scale))
 
     # Safety first
     fields = [
@@ -149,7 +157,7 @@ def data(request):
 
         cursor.execute(query, [
             start_time,
-            start_time + duration
+            end_time,
         ])
 
         return as_json([dict(row) for row in cursor])
