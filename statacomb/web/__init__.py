@@ -113,18 +113,18 @@ def data(request):
             WITH
                 -- Flatten values->>* into a table
                 flat_fields AS (
-                    SELECT ts, %(fields)s
+                    SELECT ts, CAST(EXTRACT(epoch FROM ts) AS INT) / %(scale)s AS tsa, %(fields)s
                     FROM records
                 ),
                 -- Generate a continuous time series
                 filled_times AS (
-                    SELECT EXTRACT(epoch from generate_series(%%s, %%s, '%(minutes)s minute')) AS tsa, 0 as blank_count
+                    SELECT EXTRACT(epoch FROM generate_series(%%s, %%s, '%(minutes)s minute')) AS tsa, 0 as blank_count
                 ),
                 -- Aggregate values from flat_fields
                 sample_counts AS (
-                    SELECT (CAST(EXTRACT(epoch FROM ts) AS INT) / %(scale)s) * %(scale)s AS tsa, %(aggregate)s
+                    SELECT tsa * %(scale)s AS tsa, %(aggregate)s
                     FROM flat_fields
-                    GROUP BY (CAST(EXTRACT(epoch FROM ts) AS INT) / %(scale)s)
+                    GROUP BY tsa
                 )
             SELECT filled_times.tsa AS ts, %(coalesce)s
             FROM filled_times
