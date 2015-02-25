@@ -158,9 +158,3 @@ def connect(request):
         return urls(request)
     finally:
         request.conn.close()
-
-
-parser = utils.make_parser()
-opts = parser.parse_args(['--dbname', 'stats'])
-
-application = antfarm.App(root_view=connect, config=opts)
