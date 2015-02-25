@@ -75,3 +75,72 @@ Quick Start
 
 5. View the results in your browser at http://localhost:8000/
 
+
+
+Command line options
+--------------------
+
+host::
+
+   Default: 127.0.0.1
+
+   Interface of the statacomb host.
+
+port::
+
+   Default: 9876
+
+dbhost::
+
+   Default: None
+
+   Database host.
+
+dbport::
+
+   Default: None
+
+   Database port
+
+dbname::
+
+   Default: None
+
+   Database name
+
+dbuser::
+
+   Default: None
+
+dbpasword::
+
+   Default: None
+
+dsn::
+
+   Default: None
+
+   Database DSN
+
+Config
+------
+
+All config options can be defined in a "config.ini" in the directory you launch
+the tasks from.  Just create a section called "statacomb" and put the key = value entries.
+
+.. code-block:: ini
+
+   [statacomb]
+   dbname = stats
+
+
+Options for gunicorn can be put into a "gunicorn" section.
+
+.. code-block:: ini
+
+   [statacomb]
+   dbname =  stats
+
+   [gunicorn]
+   workers = 2
+   bind = 0:8000
