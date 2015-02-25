@@ -4,11 +4,10 @@ from . import SinkServer
 
 if __name__ == '__main__':
 
-    from statacomb import utils
+    from statacomb import config
+    from statacomb impurt utils
 
-    parser = utils.make_parser()
-
-    opts = parser.parse_args()
+    opts = config.get_settings()
 
     server = SinkServer(opts)
     server.serve_forever()
