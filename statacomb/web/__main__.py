@@ -7,6 +7,7 @@ from . import connect
 
 #  http://docs.gunicorn.org/en/latest/custom.html
 
+
 class StatacombApplication(BaseApplication):
 
     def __init__(self, opts, config):

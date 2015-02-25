@@ -1,6 +1,7 @@
 
 import psycopg2
 
+
 def get_db_connection(opts, **kwargs):
 
     return psycopg2.connect(

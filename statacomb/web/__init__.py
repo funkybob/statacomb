@@ -35,6 +35,7 @@ class JsonEncoder(json.JSONEncoder):
 
 encoder = JsonEncoder()
 
+
 def as_json(data, **kwargs):
     return antfarm.Response(
         encoder.encode(data),
