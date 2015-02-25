@@ -55,6 +55,8 @@ Quick Start
 
 3. Start the web server
 
+   This requires gunicorn to be installed.
+
    .. code-block:: sh
 
       python -m statacomb.web --dbname stat
