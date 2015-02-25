@@ -81,14 +81,13 @@ def data(request):
 
     scale = request.query_data.get('scale', [None])[0]
     if scale is None:
-        scale = 300
-    else:
-        scale = int(scale)
+        scale = 1
+    scale = int(scale)
 
     duration = request.query_data.get('duration', [None])[0]
     if duration is None:
-        duration = 30
-    duration = timedelta(minutes=int(duration))
+        duration = 2
+    duration = timedelta(days=int(duration))
 
     start_time = request.query_data.get('start_time', [None])[0]
     if start_time is None:
@@ -108,34 +107,47 @@ def data(request):
         mode = 'sum'
 
     cursor = request.conn.cursor()
-    safe_fields = [QuotedString(field) for field in fields]
     try:
 
         query = '''
-            SELECT i.tsa * %%s AS ts, %s
-            FROM (
-                SELECT CAST(EXTRACT(EPOCH FROM ts) AS INT) / %%s AS tsa, %s
-                FROM records
-                -- WHERE ts > %%s
-                -- AND ts < %%s
-            ) AS i
-            GROUP BY i.tsa
-            ORDER BY i.tsa ASC
-        ''' % (
-            ','.join([
+            WITH
+                -- Flatten values->>* into a table
+                flat_fields AS (
+                    SELECT ts, %(fields)s
+                    FROM records
+                ),
+                -- Generate a continuous time series
+                filled_times AS (
+                    SELECT EXTRACT(epoch from generate_series(%%s, %%s, '%(minutes)s minute')) AS tsa, 0 as blank_count
+                ),
+                -- Aggregate values from flat_fields
+                sample_counts AS (
+                    SELECT (CAST(EXTRACT(epoch FROM ts) AS INT) / %(scale)s) * %(scale)s AS tsa, %(aggregate)s
+                    FROM flat_fields
+                    GROUP BY (CAST(EXTRACT(epoch FROM ts) AS INT) / %(scale)s)
+                )
+            SELECT filled_times.tsa AS ts, %(coalesce)s
+            FROM filled_times
+            LEFT OUTER JOIN sample_counts USING (tsa)
+            ORDER BY filled_times.tsa
+        ''' % {
+            'scale': scale,
+            'minutes': scale // 60,
+            'fields': ', '.join([
+                'CAST(values->>%s AS INT) AS %s' % (QuotedString(field), field)
+                for field in fields
+            ]),
+            'aggregate': ', '.join([
                 '%s(%s) AS %s' % (mode.upper(), field, field)
                 for field in fields
             ]),
-            ','.join([
-                'CAST(values->>%%s AS INT) as %s' % (field,)
+            'coalesce': ', '.join([
+                'COALESCE(sample_counts.%s, filled_times.blank_count) AS %s' % (field, field,)
                 for field in fields
             ]),
-        )
+        }
 
         cursor.execute(query, [
-            scale,
-            scale,
-        ] + safe_fields + [
             start_time,
             start_time + duration
         ])
