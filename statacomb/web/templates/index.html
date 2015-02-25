@@ -32,9 +32,10 @@ $(function () {
         }
     );
 
-    var chart = Morris.Line({
+    var chart = Morris.Area({
         element: 'chart',
-        xkey: 'ts',
+        smooth: false,
+        xkey: 'time',
         ykeys: ['total', 'unbooked', 'booked'],
         labels: ['Total', 'Unbooked', 'Booked']
     });
@@ -43,6 +44,7 @@ $(function () {
         $.getJSON('/data/', $('#filter-form').serialize()).done(
             function (data) {
                 chart.options.ykeys = Object.keys(data[0]).filter(function (v) { return v !== 'ts'; });
+                data.forEach(function (rec) { rec['time'] = rec['ts'] * 1000; });
                 chart.options.labels = chart.options.ykeys;
                 chart.setData(data);
             }
