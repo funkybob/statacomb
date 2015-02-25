@@ -133,6 +133,7 @@ the tasks from.  Just create a section called "statacomb" and put the key = valu
    [statacomb]
    dbname = stats
 
+Options on the command line will override the INI file.
 
 Options for gunicorn can be put into a "gunicorn" section.
 
