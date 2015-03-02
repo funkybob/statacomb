@@ -15,6 +15,6 @@ setup(
     zip_safe=False,
     install_requires=[
         'psycopg2>=2.6',
-        'antfarm==0.0.1',
+        'antfarm==0.0.2',
     ],
 )
