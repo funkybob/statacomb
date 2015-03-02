@@ -41,7 +41,7 @@ def get_settings(opts=None, config=None):
 
     prefix_args = []
 
-    for key, value in config['statacomb'].items():
+    for key, value in config.get('statacomb', {}).items():
         prefix_args.extend(['--%s' % key, value])
 
     prefix_args.extend(sys.argv[1:])
