@@ -29,4 +29,9 @@ if __name__ == '__main__':
     cfg = config.load_config()
     opts = config.get_settings(config=cfg)
 
-    StatacombApplication(opts, cfg['gunicorn']).run()
+    try:
+        gconf = cfg['gunicorn']
+    except KeyError:
+        gconf = {}
+
+    StatacombApplication(opts, gconf).run()
