@@ -51,7 +51,7 @@ Quick Start
 
    .. code-block:: sh
 
-      python -m statacomb.server --dbname stat
+      python3 -m statacomb.server --dbname stat
 
 3. Start the web server
 
@@ -59,7 +59,7 @@ Quick Start
 
    .. code-block:: sh
 
-      python -m statacomb.web --dbname stat
+      python3 -m statacomb.web --dbname stat
 
 4. Send in some data
 
