@@ -57,7 +57,7 @@ def info_values(request):
     cursor = request.conn.cursor()
     try:
         cursor.execute('''
-            SELECT DISTINCT json_object_keys(values) FROM records;
+            SELECT DISTINCT skeys(values) FROM records;
         ''')
         return as_json([row[0] for row in cursor])
     finally:

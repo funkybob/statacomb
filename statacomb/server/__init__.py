@@ -12,8 +12,10 @@ CREATE TABLE records (
     ts TIMESTAMP,
     source TEXT,
     src_ip INET,
-    values JSON
+    values HSTORE
 );
+
+CREATE INDEX values_keys ON records USING GIN (values);
 
 CREATE INDEX records_5mins ON records (
     CAST(EXTRACT(EPOCH FROM ts) AS INT) / 300
@@ -42,7 +44,7 @@ class SinkHandler(BaseRequestHandler):
         cursor.execute('''
             INSERT INTO records (ts, source, src_ip, values)
             VALUES ('now', %s, %s, %s)
-        ''', (source, src_ip, Json(values),)
+        ''', (source, src_ip, values,)
         )
         cursor.close()
 
