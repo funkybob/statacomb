@@ -9,8 +9,8 @@ import antfarm
 from antfarm.views.static import ServeStatic
 from antfarm.views.urls import url_dispatcher
 
-from psycopg2.extensions import QuotedString
-from psycopg2.extras import DictCursor
+# from psycopg2.extensions import QuotedString
+# from psycopg2.extras import DictCursor
 
 from statacomb import utils
 
@@ -127,7 +127,7 @@ def data(request):
                 ),
                 -- Generate a continuous time series
                 filled_times AS (
-                    SELECT EXTRACT(epoch FROM generate_series(%%s, %%s, '%(minutes)s minute')) AS tsa, 0 as blank_count
+                    SELECT EXTRACT(epoch FROM generate_series($1, $2, '%(minutes)s minute')) AS tsa, 0 as blank_count
                 ),
                 -- Aggregate values from flat_fields
                 sample_counts AS (
@@ -170,10 +170,7 @@ def connect(request):
     '''
     Connect to the DB
     '''
-    request.conn = utils.get_db_connection(
-        request.app.config,
-        cursor_factory=DictCursor
-    )
+    request.conn = utils.get_db_connection(request.app.config)
 
     try:
         return urls(request)

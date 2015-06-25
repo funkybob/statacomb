@@ -1,10 +1,10 @@
 
-import psycopg2
+import egress
 
 
 def get_db_connection(opts, **kwargs):
 
-    return psycopg2.connect(
+    return egress.connect(
         dsn=opts.dsn,
         database=opts.dbname,
         user=opts.dbuser,
